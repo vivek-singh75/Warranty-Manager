@@ -11,10 +11,14 @@
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.20.0",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
+    "hash": "^0.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "jwt": "^0.2.0",
     "mongoose": "^9.11.4"
   }
 }
