@@ -1,0 +1,25 @@
+import apiClient from "../../../services/apiClient";
+
+export const registerUser = async (data) => {
+    const response = await apiClient.post("/auth/register", data);
+
+    return response.data;
+};
+
+export const loginUser = async (data) => {
+    const response = await apiClient.post("/auth/login", data);
+
+    return response.data;
+};
+
+export const getCurrentUser = async () => {
+    const response = await apiClient.get("/auth/getMe");
+
+    return response.data;
+};
+
+export const logoutUser = async () => {
+    const response = await apiClient.post("/auth/logout");
+
+    return response.data;
+};
