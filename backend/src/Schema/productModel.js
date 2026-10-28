@@ -20,8 +20,12 @@ const warrantySchema = new mongoose.Schema(
 
         type: {
             type: String,
-            enum: ["Manufacturer", "Seller", "Extended", "Other"],
+            enum: ["Manufacturer", "Seller", "Extended", "Other", ""],
             default: "Manufacturer"
+        },
+        placeOfWarrantyCard: {
+            type : String,
+            
         }
     },
     { _id: true }
@@ -64,20 +68,20 @@ const productSchema = new mongoose.Schema(
 
         warranty: [warrantySchema],
 
-        serialNumber: {
-            type: String,
-            trim: true
-        },
+        // serialNumber: {
+        //     type: String,
+        //     trim: true
+        // },
 
-        seller: {
-            type: String,
-            trim: true
-        },
+        // seller: {
+        //     type: String,
+        //     trim: true
+        // },
 
-        notes: {
-            type: String,
-            trim: true
-        }
+        // notes: {
+        //     type: String,
+        //     trim: true
+        // }
     },
     {
         timestamps: true
