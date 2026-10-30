@@ -1,29 +1,35 @@
-import { Children, createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
-import { addProducts } from "../api/Products.api";
+import { addProducts , submitProducts} from "../api/Products.api";
 
-export const AuthContext = createContext(null);
+export const ProductContext = createContext(null);
 
-export const AuthProvider = ({children}) =>{
+export const ProductProvider = ({ children }) => {
+
     const [loading, setLoading] = useState(false);
 
-    const handleAddProducts = async (data)=>{
-
-        const response = await addProducts(data);
+    const handleAddProducts = async (message) => {
+        
+        const response = await addProducts(message);
 
         return response;
-    }
+    };
 
+    const handleSubmitDetails = async (productData) => {
+        const response = await submitProducts(productData);
+
+        return response
+    }
 
     const value = {
         loading,
-
-        handleAddProducts
-    }
+        handleAddProducts,
+        handleSubmitDetails
+    };
 
     return (
-            <AuthContext.Provider value={value}>
-                {children}
-            </AuthContext.Provider>
-        );
-}
+        <ProductContext.Provider value={value}>
+            {children}
+        </ProductContext.Provider>
+    );
+};

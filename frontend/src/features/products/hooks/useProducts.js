@@ -1,13 +1,13 @@
 import { useContext } from "react";
-import { AuthContext } from "../context/Product.context";
+import { ProductContext } from "../context/Product.context";
 
-export const useAuth = () => {
+export const useProducts = () => {
 
-    const context = useContext(AuthContext);
+    const context = useContext(ProductContext);
 
     if (!context) {
         throw new Error(
-            "useAuth must be used inside AuthProvider"
+            "useProducts must be used inside ProductProvider"
         );
     }
 

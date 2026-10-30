@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+
+    const navigate = useNavigate()
 
     const {handleLogin} = useAuth()
 
@@ -21,6 +24,7 @@ const Login = () => {
 
             console.log(`login success ${response.message}`)
 
+            navigate("/addProducts")
 
         } catch (error) {
             console.log(error)
