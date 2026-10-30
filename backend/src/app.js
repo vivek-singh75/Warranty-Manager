@@ -5,7 +5,8 @@ const cors = require("cors")
 
 
 const authRouter = require("./Routes/auth.route");
-const productRouter = require("./Routes/product.routes")
+const productRouter = require("./Routes/product.routes");
+const showRouter = require("./Routes/showProduct.route");
 
 
 const allowedOrigins = [
@@ -35,7 +36,7 @@ app.use("/api/auth" , authRouter);
 
 app.use("/api/products" , productRouter);
 
-
+app.use("/api/products" , showRouter)
 
 
 module.exports = app
