@@ -1,18 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect , useRef} from "react";
 import { useProducts } from "../hooks/useProducts";
 
 const AddProducts = () => {
 
     const { handleAddProducts ,handleSubmitDetails} = useProducts();
+    const messagesEndRef = useRef(null);
 
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [productData, setProductData] = useState(null);
     const [isComplete, setIsComplete] = useState(false);
+    const [isSubmit, setIsSubmit] = useState(false);
+    const [isSending, setIsSending] = useState(false)
+
 
     const handleSend = async () => {
 
-        if (!message.trim()) return;
+        if (!message.trim() || isSending) return;
 
         const userMessage = message;
 
@@ -26,6 +30,7 @@ const AddProducts = () => {
         ]);
 
         setMessage("");
+        setIsSending(true)
 
         try {
 
@@ -33,6 +38,7 @@ const AddProducts = () => {
 
             // Server ka response chat me show karo
             console.log(response)
+            setIsSending(false)
             setMessages((prev) => [
                 ...prev,
                 {
@@ -57,6 +63,7 @@ const AddProducts = () => {
           
 
         } catch (error) {
+            setIsSending(false)
 
             setMessages((prev) => [
                 ...prev,
@@ -78,19 +85,30 @@ const AddProducts = () => {
 
 
     const handleSubmit = async () => {
+      if(isSubmit || !productData){
+        return
+      }
       // separate submit API call
       try {
+        setIsSubmit(true)
         const response = await handleSubmitDetails(productData);
 
         console.log("Submitting product:", productData);
-        
+
 
       } catch (error) {
         console.log(error.message)
+        setIsSubmit(false)
         throw error
       }
 
     };
+
+    useEffect(() => {
+      messagesEndRef.current?.scrollIntoView({
+          behavior: "smooth"
+      });
+    }, [messages]);
 
 
     return (
@@ -147,6 +165,7 @@ const AddProducts = () => {
                                         }`}
                                     >
                                         {item.text}
+                                        <div ref={messagesEndRef} />
                                     </div>
 
                                 </div>
@@ -221,14 +240,15 @@ const AddProducts = () => {
                                         <button
                                             type="button"
                                             onClick={handleSubmit}
-                                            className="rounded-lg bg-cyan-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-cyan-500"
+                                            className="rounded-lg bg-cyan-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-cyan-500"
                                         >
-                                            Submit
+                                            {isSubmit ? "Saving..." : "Submit" }
                                         </button>
 
                                         <button
                                             type="button"
                                             onClick={handleCancel}
+                                            disabled={isSubmit}
                                             className="rounded-lg border border-slate-600 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
                                         >
                                             Cancel
@@ -262,7 +282,8 @@ const AddProducts = () => {
                         <button
                             type="button"
                             onClick={handleSend}
-                            className="h-11 rounded-xl bg-cyan-600 px-4 text-sm font-semibold text-white transition hover:bg-cyan-500 active:bg-cyan-700 sm:px-6"
+                            
+                            className="h-11 rounded-xl bg-cyan-950 px-4 text-sm font-semibold text-white transition hover:bg-cyan-200 active:bg-cyan-600 sm:px-6"
                         >
                             Send
                         </button>
