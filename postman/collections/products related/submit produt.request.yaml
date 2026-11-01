@@ -1,0 +1,35 @@
+$kind: http-request
+url: http://localhost:3000/api/products/submit
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"productName\": \"Samsung 55 inch Smart TV\",\r
+
+    \  \"brand\": \"Samsung\",\r
+
+    \  \"category\": \"Television\",\r
+
+    \  \"purchaseDate\": \"2026-10-20\",\r
+
+    \  \"purchasePrice\": 55000,\r
+
+    \  \"warranty\": [\r
+
+    \    {\r
+
+    \      \"durationMonths\": 24,\r
+
+    \      \"startDate\": \"2026-10-20\",\r
+
+    \      \"expiryDate\": \"2028-10-20\",\r
+
+    \      \"type\": \"Manufacturer\"\r
+
+    \    }\r
+
+    \  ]\r
+
+    }"
+order: 2000

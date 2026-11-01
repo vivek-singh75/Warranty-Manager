@@ -23,7 +23,7 @@ const Navbar = () => {
             </Link>
 
             <Link
-                to="/products"
+                to="/productsDetails"
                 className="px-3 py-2 rounded-md text-sm sm:text-base font-medium hover:bg-cyan-700 active:bg-cyan-800 transition"
             >
                 Products

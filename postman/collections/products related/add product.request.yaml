@@ -1,0 +1,13 @@
+$kind: http-request
+url: http://localhost:3000/api/products/add
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"userQuery\" : \"Maine Samsung TV 15 October 2025 ko kharida tha\"\r
+
+    }\r
+
+    \r\n"
+order: 1000

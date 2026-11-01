@@ -70,7 +70,7 @@ async function productDetailsFromAI(history) {
         input: history,
         system_instruction: system_prompt,
 
-    });
+    }); 
 
     //console.log(interaction.output_text);
 

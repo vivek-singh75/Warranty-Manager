@@ -4,7 +4,7 @@ import Login from "./features/auth/pages/Login.jsx";
 import AddProducts from "./features/products/pages/AddProducts.jsx";
 import ProtectedRoute from "./components/Protected/Protected.jsx";
 import MainLayout from "./components/Mainlayout.jsx";
-
+import ProductsDetails from "./features/products/pages/ProductsDetails.jsx";
 
 export const router = createHashRouter([
     {
@@ -31,6 +31,10 @@ export const router = createHashRouter([
                     {
                         path: "/AddProducts",
                         element: <AddProducts />
+                    },
+                    {
+                        path: "/productsdetails",
+                        element: <ProductsDetails/>
                     }
                 ]
             }

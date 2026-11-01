@@ -37,3 +37,20 @@ export const submitProducts = async (productData) => {
 
     return response.data;
 }
+
+export const detailsByQuery = async (userQuery)=> {
+    
+    const response = await apiClient.post("/products/listproducts", {
+        userQuery: userQuery
+    });
+
+    return response.data
+}
+
+
+export const getTopProduct = async () => {
+    
+    const response = await apiClient.get("/products/topProducts");
+
+    return response.data
+}

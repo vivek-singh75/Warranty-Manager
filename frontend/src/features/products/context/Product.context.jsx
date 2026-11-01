@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
 
-import { addProducts , submitProducts} from "../api/Products.api";
+import { addProducts , submitProducts , detailsByQuery, getTopProduct} from "../api/Products.api";
 
 export const ProductContext = createContext(null);
 
@@ -21,10 +21,25 @@ export const ProductProvider = ({ children }) => {
         return response
     }
 
+    const handleDetailsByQuery = async (userQuery)=>{
+        const response = await detailsByQuery(userQuery);
+
+        return response
+    }
+
+    const handleGetTopProduct = async ()=>{
+        const response = await getTopProduct();
+
+        return response
+    }
+
+
     const value = {
         loading,
         handleAddProducts,
-        handleSubmitDetails
+        handleSubmitDetails,
+        handleDetailsByQuery,
+        handleGetTopProduct
     };
 
     return (
