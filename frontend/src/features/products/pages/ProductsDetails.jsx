@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useProducts } from "../hooks/useProducts";
+import { useNavigate } from "react-router-dom";
 
 const ProductsDetails = () => {
 
     const {handleGetTopProduct ,handleDetailsByQuery} = useProducts()
 
+    const navigate= useNavigate()
     const [query, setQuery] = useState("");
     const [response, setResponse] = useState(null);
     const [showProducts, setShowProducts] = useState(true);
@@ -142,10 +144,12 @@ const ProductsDetails = () => {
 
                             <div className="space-y-5">
                                 {productData.map((product) => (
-                                    <div
+                                    <div 
                                         key={product._id}
-                                        className="w-full max-w-xs mx-auto h-[23vh] bg-cyan-900/70 border border-cyan-700 rounded-xl p-3 shadow-md"  >
-                                        <h3 className="text-lg font-semibold mb-1">
+                                        onClick={() => navigate(`/productDetailsById/${product._id}`)}
+
+                                        className="w-full max-w-xs mx-auto h-[23vh] bg-cyan-900/70 border border-cyan-700 rounded-xl px-3 py-1 shadow-md"  >
+                                        <h3 className="text-sm font-semibold mb-1">
                                             {product.productName}
                                         </h3>
 
@@ -208,6 +212,8 @@ const ProductsDetails = () => {
                                     {response.products?.map((product) => (
                                         <div
                                             key={product._id}
+                                            onClick={() => navigate(`/productDetailsById/${product._id}`)}
+
                                             className="mt-4 bg-blue-950 rounded-lg p-4"
                                         >
                                             <h3 className="font-semibold">
@@ -280,6 +286,8 @@ const ProductsDetails = () => {
                                 {productData.map((product) => (
                                     <div
                                         key={product._id}
+                                        onClick={() => navigate(`/productDetailsById/${product._id}`)}
+
                                         className="w-full max-w-xs mx-auto bg-cyan-900/70 border border-slate-700 rounded-xl p-3 shadow-md"                                    >
 
                                         <h3 className="font-semibold text-lg mb-3">

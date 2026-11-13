@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useAuth } from '../hooks/useAuth';
+import LoadingAnimation from '../../../components/Loading/Loading';
+
 
 const Register = () => {
 
-    const {handleRegister} = useAuth()
+    const {loading , error , handleRegister} = useAuth()
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -46,8 +48,9 @@ const Register = () => {
             console.log(response)
 
 
-        } catch (error) {
-            console.log(error)
+        } catch (err) {
+            console.log(err)
+            alert(error.message)
         }     
     }
 
@@ -155,7 +158,13 @@ const Register = () => {
 
                             className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
                         >
-                            Create Account
+                            {loading.register ? (
+                                <>
+                                    <LoadingAnimation />
+                                </>
+                            ) : (
+                                "Create Account"
+                            )}
                         </button>
 
                     </form>
