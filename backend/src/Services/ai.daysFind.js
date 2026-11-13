@@ -4,7 +4,6 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_AI_KEY
 });
 
-console.log("API KEY EXISTS:", !!process.env.GEMINI_AI_KEY);
 async function queryToDays(history) {
 
 

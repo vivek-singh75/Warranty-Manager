@@ -55,6 +55,7 @@ async function loginController(req , res) {
 
         if(!email || !password){
             return res.status(401).json({
+                success: false,
                 message : "Enter all required details"
             })
         }
@@ -64,6 +65,7 @@ async function loginController(req , res) {
         
         if(!user){
             return res.status(404).json({
+                success: false,
                 message : "user not exist"
             })
         }
@@ -71,7 +73,10 @@ async function loginController(req , res) {
         const isPassValid =await bcrypt.compare(password , user.password)
 
         if(!isPassValid){
-            return res.status(409).json({message : "Password is not valid "})
+            return res.status(409).json({
+                success: false,
+                message : "Password is not valid "
+            })
         }
 
         const token = jwt.sign({id: user._id}, process.env.JWT_KEY)
@@ -80,6 +85,7 @@ async function loginController(req , res) {
 
         res.status(200).json({
             message: "login successfull",
+            success: true,
             user: {
                 id : user._id,
                 name : user.name,
@@ -91,7 +97,10 @@ async function loginController(req , res) {
     } catch (error) {
         console.log(`error ${error}`)
 
-        res.status(401).json({message : `error ${error.message}`})
+        res.status(401).json({
+            success: false,
+            message : `error ${error.message}`
+        })
     }
     
 }

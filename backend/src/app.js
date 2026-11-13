@@ -7,6 +7,7 @@ const cors = require("cors")
 const authRouter = require("./Routes/auth.route");
 const productRouter = require("./Routes/product.routes");
 const showRouter = require("./Routes/showProduct.route");
+const errorMiddleware = require("./Middleware/error.middleware")
 
 
 const allowedOrigins = [
@@ -29,7 +30,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.text());
-
+app.use(errorMiddleware)
 
 
 app.use("/api/auth" , authRouter);

@@ -3,13 +3,14 @@ const productDetailsFromAI = require("../Services/ai.service");
 const userModel = require("../Schema/userModel");
 
 
+
 const history= [];       
 
 async function addProduct(req , res) {
 
     try {
+
         const {userQuery} = req.body;
-        console.log(userQuery)
 
         const userId = req.user.id;
 
@@ -35,7 +36,7 @@ async function addProduct(req , res) {
         const response = await productDetailsFromAI(history)
 
         const output = JSON.parse(response.output_text)
-        console.log(output)
+
 
         if(output.status === "missing"){
 
@@ -43,8 +44,6 @@ async function addProduct(req , res) {
                 type : "text",
                 text : `${response.missing} , ${response.question} role LLM`
             });
-
-            console.log(output.question)
 
             return res.status(209).json({
                 success: false,
@@ -71,8 +70,10 @@ async function addProduct(req , res) {
                 startDate: output.product.warranty.startDate,
                 expiryDate : expiryDate,
                 type: output.product.warranty.type,
+                placeOfWarrantyCard: output.product.warranty.placeOfWarrantyCard
             }]
         }
+
 
         // const productDetailss = await productModel.create({
         //     userId : userId,
@@ -97,7 +98,7 @@ async function addProduct(req , res) {
 
 
     } catch (error) {
-        console.log(error.message)
+        console.log(error)
 
         return res.status(503).json({
             success: false,
@@ -144,6 +145,8 @@ async function submitProducts(req ,res) {
                 startDate: output.warranty[0].startDate,
                 expiryDate : output.warranty[0].expiryDate,
                 type: output.warranty[0].type,
+                placeOfWarrantyCard: output.warranty[0].placeOfWarrantyCard
+
             }]
         })
 
