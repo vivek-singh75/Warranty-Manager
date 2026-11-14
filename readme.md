@@ -11,14 +11,11 @@ Authentication
 Warranty management
 - Add warranty manually
 - Add warranty using natural-language text
-- Add warranty using image
 - Edit warranty
 - Delete warranty
 - View warranty details
 
 Dashboard
-- Total products
-- Active warranties
 - Expiring warranties
 - Top 5 nearest-expiring warranties
 - "What needs my attention?"
