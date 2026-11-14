@@ -1,0 +1,10 @@
+$kind: http-request
+url: http://localhost:3000/api/products/listproducts
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "userQuery" : "10 din ke under kitne product ki warranty khatam ho rahi hai"
+    }
+order: 3000

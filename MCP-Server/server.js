@@ -1,12 +1,17 @@
+require("dotenv").config()
 const { McpServer } = require("@modelcontextprotocol/server");
 const {
     NodeStreamableHTTPServerTransport
 } = require("@modelcontextprotocol/node");
-const {registerGetExpiringWarranties} = require("./src/tools")
+const connectDB = require("./src/db/db")
+
+const {productsByDays , getProductByName,getProductByMonths
+            } = require("./src/tools")
 
 const express = require("express");
 
 const app = express();
+connectDB() 
 
 app.use(express.json());
 
@@ -18,11 +23,15 @@ app.post("/mcp", async (req, res) => {
         });
 
 
-        registerGetExpiringWarranties(server)
+        productsByDays(server)
+        getProductByName(server)
+        getProductByMonths(server)
 
         const transport = new NodeStreamableHTTPServerTransport({
             sessionIdGenerator: undefined
         });
+
+        
 
         await server.connect(transport);
 

@@ -6,7 +6,7 @@ const authMiddleWares = require("../Middleware/auth.middleware");
 
 const showProductControllers = require("../Controllers/showProducts.controller")
 
-
+  
 
 showRouter.post("/listProducts" ,
     authMiddleWares.authMiddleware,  showProductControllers.listproductsByQuery);

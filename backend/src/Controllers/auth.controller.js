@@ -48,63 +48,77 @@ async function registerUserController(req , res) {
 }
 
 
-async function loginController(req , res) {
+async function loginController(req, res) {
 
     try {
+        const { email, password } = req.body;
 
-        const {email ,  password} = req.body;
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required"
+            });
+        }
 
-        if(!email || !password){
+        const user = await userModel.findOne({
+            email: email.toLowerCase()
+        });
+
+        if (!user) {
             return res.status(401).json({
                 success: false,
-                message : "Enter all required details"
-            })
+                message: "Invalid email or password"
+            });
         }
 
-        const user = await userModel.findOne({email});
+        const isPassValid = await bcrypt.compare(
+            password,
+            user.password
+        );
 
-        
-        if(!user){
-            return res.status(404).json({
+        if (!isPassValid) {
+            return res.status(401).json({
                 success: false,
-                message : "user not exist"
-            })
+                message: "Invalid email or password"
+            });
         }
 
-        const isPassValid =await bcrypt.compare(password , user.password)
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+        );
 
-        if(!isPassValid){
-            return res.status(409).json({
-                success: false,
-                message : "Password is not valid "
-            })
-        }
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: "/"
+        });
 
-        const token = jwt.sign({id: user._id}, process.env.JWT_KEY)
-
-        res.cookie("token" , token);
-
-        res.status(200).json({
-            message: "login successfull",
+        return res.status(200).json({
             success: true,
+            message: "Login successful",
             user: {
-                id : user._id,
-                name : user.name,
-                email : user.email,
+                id: user._id,
+                name: user.name,
+                email: user.email
             }
-        })
+        });
 
-        
     } catch (error) {
-        console.log(`error ${error}`)
+        console.error("Login error:", error);
 
-        res.status(401).json({
+        return res.status(500).json({
             success: false,
-            message : `error ${error.message}`
-        })
+            message: "Internal server error"
+        });
     }
-    
 }
+
+module.exports = loginController;
+
 
 
 async function getMeController(req , res) {
@@ -149,32 +163,21 @@ async function getMeController(req , res) {
 }
 
 
-async function logoutController(req , res) {
-    
-    try {
-        const token = req.cookies.token;
 
-        if(!token){
-            return res.status(409).json({
-                message : "token not defined"
-            })
-        }
+async function logoutController(req, res) {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        path: "/"
+    });
 
-        res.clearCookie("token", {
-            path: "/"
-        });
-
-        return res.status(200).json({
-            message: "Logout successful"
-        });
-
-
-    } catch (error) {
-        console.log(`error ${error}`)
-
-        res.status(401).json({message : `error ${error.message}`})
-    }
+    return res.status(200).json({
+        success: true,
+        message: "Logout successful"
+    });
 }
+
 
 
 module.exports = {

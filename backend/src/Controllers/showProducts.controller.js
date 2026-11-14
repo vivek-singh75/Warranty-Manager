@@ -1,86 +1,118 @@
-// const {client} = require("../MCP-Client/mcpClient")
+const {client} = require("../MCP-Client/mcpClient")
 const productModel = require("../Schema/productModel");
-const queryToDays = require("../Services/ai.daysFind")
+const queryToTool = require("../Services/ai.queryToTool")
 
 
 
 const history = []
 
-async function listproductsByQuery(req , res) {
-
+async function listproductsByQuery(req, res) {
     try {
-        const {userQuery} = req.body
+        const { userQuery } = req.body;
+        const userId = req.user?.id;
 
-        const userId = req.user.id;
-
-        if(!userId){
-            return res.status(500).json({
+        if (!userId) {
+            return res.status(401).json({
                 success: false,
-                message : "unauthorized access"
+                message: "Unauthorized access"
             });
         }
 
-        if(!userQuery){
+        if (!userQuery) {
             return res.status(400).json({
                 success: false,
-                message : "userQuery is not provided"
-            });
+                message: "userQuery is not provided"
+            }); 
         }
 
-        try {
+        history.push({
+            type: "text",
+            text: `${userQuery} role user`
+        });
+
+        // Gemini selects the appropriate MCP tool
+        const aiResponse = await queryToTool(history);
+
+        if (!aiResponse.success) {
             history.push({
-                type : "text",
-                text : `${userQuery} role user`
-            })
-
-            let aiResponse = await queryToDays(history);
-
-            aiResponse = JSON.parse(aiResponse)
-
-            if(!(aiResponse.success)){
-                history.push({
-                    type : "text",
-                    text : `${userQuery} role LLM`
-                })
-
-                return res.status(209).json({
-                    success: false,
-                    message : aiResponse
-                })
-            }
-            const days = aiResponse.days 
-
-            console.log(`days is ${days}`)
-
-            const response = await getExpiringProducts(userId , days)
-
-            console.log(response);
+                type: "text",
+                text: `${aiResponse.question} role LLM`
+            });
 
             return res.status(200).json({
-                success: true,
-                message : `list of product which expire in ${days} days`,
-                products : response
-            });
-    
-        } catch (error) {
-            
-            console.error(error);
-
-            return res.status(500).json({
                 success: false,
-                message: error.message
+                message: aiResponse.question
             });
         }
 
+        const { toolName, arguments: toolArguments } = aiResponse;
+
+        // Get available tools from MCP Server
+        const availableTools = await client.listTools();
+
+        const selectedTool = availableTools.tools.find(
+            tool => tool.name === toolName
+        );
+
+        if (!selectedTool) {
+            throw new Error(`MCP tool not found: ${toolName}`);
+        }
+
+        // Backend supplies authenticated userId
+        const finalArguments = {
+            ...toolArguments,
+            userId: userId.toString()
+        };
+        if (aiResponse.toolName === "getProductByMonths") {
+            if (
+                !Number.isInteger(aiResponse.arguments.months) ||
+                aiResponse.arguments.months < 1 ||
+                aiResponse.arguments.months > 36
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Please provide a valid number of months (1-36)."
+                });
+            }
+        }
+
+        // Execute selected MCP tool
+        const response = await client.callTool({
+            name: toolName,
+            arguments: finalArguments
+        });
+
+        if (response.isError) {
+            throw new Error(response.content?.[0]?.text || "MCP tool execution failed");
+        }
+
+        const toolResult = JSON.parse(response.content[0].text);
+
+       // console.log(toolResult)
+        if (!toolResult.success) {
+            throw new Error(toolResult.message || "Unable to fetch products");
+        }
+
+        history.push({
+            type: "text",
+            text: `MCP tool ${toolName} executed successfully. role LLM`
+        });
+
+        return res.status(200).json({
+            success: true,
+            toolName,
+            message: toolResult.message || "Data fetched successfully",
+            ...toolResult
+        });
+
     } catch (error) {
-        console.error(error);
+        console.error("listproductsByQuery error:", error);
 
         return res.status(500).json({
             success: false,
             message: error.message
         });
     }
-
 }
 
  
@@ -169,7 +201,7 @@ module.exports={
     fetchProductController,
 }
 
-
+ 
 async function getExpiringProducts(userId, days) {
 
     const today = new Date();

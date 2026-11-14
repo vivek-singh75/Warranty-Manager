@@ -1,31 +1,34 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken")
 
-async function authMiddleware(req , res,  next) {
+const jwt = require("jsonwebtoken");
+
+async function authMiddleware(req, res, next) {
     try {
-        const token = req.cookies.token;
+        const token = req.cookies?.token;
 
-        if(!token){
-            return res.status(404).json({
-                message : "token not availble"
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Please login first"
             });
         }
 
-        const decoded = jwt.verify(token ,  process.env.JWT_KEY);
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
 
-        req.user = decoded;
+        req.user = {
+            id: decoded.id
+        };
 
-        next()
+        next();
 
     } catch (error) {
-        console.log(`error in middleware ${error}`)
-
-        res.status(500).json({
-            message : `error in middleware ${error.message}`
-        })
+        return res.status(401).json({
+            success: false,
+            message: "Session expired. Please login again."
+        });
     }
 }
 
-module.exports = {
-    authMiddleware,
-}
+module.exports = {authMiddleware};

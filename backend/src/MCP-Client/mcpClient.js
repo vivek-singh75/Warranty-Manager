@@ -17,7 +17,7 @@ const transport = new StreamableHTTPClientTransport(
     new URL("http://localhost:3001/mcp")
 );
  
-
+ 
 async function connectMCPServer() {
     try {
         await client.connect(transport)
@@ -30,7 +30,7 @@ async function connectMCPServer() {
 
         console.log("Available MCP Tools:");
         console.log(toolsName);
-
+ 
     } catch (error) {
         console.error("MCP connection failed:");
         console.error(error);

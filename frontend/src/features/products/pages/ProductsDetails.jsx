@@ -212,7 +212,7 @@ const ProductsDetails = () => {
     };
 
     return (
-        <main className="h-dvh w-full overflow-hidden bg-slate-950  pt-14 text-white">
+        <main className="h-dvh w-full overflow-hidden bg-slate-950   text-white">
 
             <div className="flex h-full">
 
@@ -379,7 +379,7 @@ const ProductsDetails = () => {
                     )}
 
                     {/* Input Area */}
-                    <div className="absolute bottom-0 left-0 w-full border-t border-slate-800 bg-slate-950/95 p-3 backdrop-blur sm:p-4">
+                    <div className="absolute fixed bottom-0 left-0 w-full  border-t border-slate-800 bg-slate-950/95 p-3 backdrop-blur sm:p-3 ">
 
                         <div className="mx-auto flex max-w-3xl gap-2">
 
@@ -400,7 +400,7 @@ const ProductsDetails = () => {
                                 }
                                 disabled={isClicked}
                                 className="w-full max-w-xs mx-auto rounded-xl border border-[#29466F] bg-[#101F3C] 
-                                    p-4 shadow-lg transition-all duration-200 hover:border-blue-500/60 hover:bg-[#14294D]"                             />
+                                    p-3 shadow-lg transition-all duration-200 hover:border-blue-500/60 hover:bg-[#14294D]"                             />
 
                             <button
                                 onClick={handleSend}

@@ -3,7 +3,7 @@ const authRouter = express.Router();
 
 
 const authControllers = require("../Controllers/auth.controller");
-const authMiddlewares = require("../Middleware/auth.middleware")
+const authMiddlewares = require("../Middleware/auth.middleware");
 
 
 
