@@ -26,7 +26,7 @@ const Login = () => {
             console.log(`login success ${response.message}`)
 
             if(response.success === true){
-                navigate("/addProducts")                
+                navigate("/")                
             }else{
                 alert(error)
             }

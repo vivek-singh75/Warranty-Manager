@@ -9,7 +9,7 @@ import ProductsDetails from "./features/products/pages/ProductsDetails.jsx";
 import ProductDetailByID from "./features/products/pages/ProductDetailByID.jsx";
 import Home from "./features/auth/pages/Home.jsx";
 import PublicLayout from "./components/PublicLayout.jsx";
-
+import Account from "./features/auth/pages/Account.jsx";
 
 
 
@@ -52,7 +52,11 @@ export const router = createHashRouter([
                     {
                         path: "/productDetailsById/:id",
                         element: <ProductDetailByID />
-                    }
+                    },
+                    {
+                        path: "/account",
+                        element: <Account/>
+                    },
                 ]
             }
         ]

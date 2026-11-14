@@ -12,6 +12,8 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null);
+    const [alluserData, setAlluserData] = useState(null)
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
 
     const [loading, setLoading] = useState({
         register: false,
@@ -46,10 +48,12 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await loginUser(data);
             setUser(response.user);
+            setIsAuthenticated(true)
             return response;
 
         } catch (error) {
             setError(error.response?.data?.message || error.message);
+            setIsAuthenticated(false)
             throw error;
 
         } finally {
@@ -63,6 +67,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             await logoutUser();
+            setIsAuthenticated(false)
             setUser(null);
 
         } catch (error) {
@@ -80,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await getCurrentUser();
             setUser(response.user);
+            setAlluserData(response)
 
         } catch (error) {
             setUser(null);
@@ -96,6 +102,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        alluserData,
         loading,
         error,
         isAuthenticated: !!user,

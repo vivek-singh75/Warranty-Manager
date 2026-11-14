@@ -1,11 +1,12 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import {
     ShieldCheck,
     Sparkles,
     Clock,
-    ArrowRight
+    ArrowRight,
+    Plus,
+    Package
 } from "lucide-react";
 
 const Home = () => {
@@ -32,7 +33,7 @@ const Home = () => {
         <main className="min-h-screen bg-slate-950 text-white">
 
             {/* Hero */}
-            <section className="relative flex min-h-[65vh] items-center justify-center overflow-hidden px-5 py-16 text-center">
+            <section className="relative flex min-h-[65vh] items-center justify-center overflow-hidden px-5 py-19 md:py-42 text-center">
 
                 <div className="absolute left-1/2 top-10 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-600/10 blur-[100px]" />
 
@@ -59,18 +60,19 @@ const Home = () => {
                     <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
 
                         <Link
-                            to="/register"
+                            to="/AddProducts"
                             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-7 py-3 text-sm font-semibold transition hover:bg-blue-500"
                         >
-                            Get Started
-                            <ArrowRight size={17} />
+                            <Plus size={17} />
+                            Add Product
                         </Link>
 
                         <Link
-                            to="/login"
-                            className="rounded-lg border border-slate-700 px-7 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white"
+                            to="/productsdetails"
+                            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-7 py-3 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white"
                         >
-                            Login
+                            <Package size={17} />
+                            View Products
                         </Link>
 
                     </div>
@@ -78,9 +80,8 @@ const Home = () => {
                 </div>
             </section>
 
-
             {/* Features */}
-            <section className="border-t border-slate-800 px-5 py-14">
+            <section className="border-t border-slate-800 px-5 py-10">
 
                 <div className="mx-auto max-w-5xl">
 
@@ -122,9 +123,8 @@ const Home = () => {
                 </div>
             </section>
 
-
             {/* CTA */}
-            <section className="px-5 py-12">
+            <section className="px-5 py-8">
 
                 <div className="mx-auto max-w-5xl rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-950/70 to-slate-900 px-5 py-10 text-center">
 
@@ -146,7 +146,6 @@ const Home = () => {
 
                 </div>
             </section>
-
 
             {/* Footer */}
             <footer className="border-t border-slate-800 px-5 py-5">

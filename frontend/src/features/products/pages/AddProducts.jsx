@@ -1,26 +1,62 @@
-import { useState, useEffect , useRef} from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { useProducts } from "../hooks/useProducts";
 
 const AddProducts = () => {
 
-    const { handleAddProducts ,handleSubmitDetails} = useProducts();
+    const { handleAddProducts, handleSubmitDetails } = useProducts();
+
     const messagesEndRef = useRef(null);
 
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [productData, setProductData] = useState(null);
+
     const [isComplete, setIsComplete] = useState(false);
     const [isSubmit, setIsSubmit] = useState(false);
-    const [isSending, setIsSending] = useState(false)
+    const [isSending, setIsSending] = useState(false);
 
+    // Safe date formatter
+    const formatDate = (date) => {
+        if (!date) return "Not provided";
 
+        const parsedDate = new Date(date);
+
+        if (Number.isNaN(parsedDate.getTime())) {
+            return "Not provided";
+        }
+
+        return parsedDate.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    };
+
+    // Handle different server message formats
+    const getServerMessage = (response) => {
+        if (typeof response?.message === "string") {
+            return response.message;
+        }
+
+        if (response?.message?.question) {
+            return response.message.question;
+        }
+
+        if (response?.message?.message) {
+            return response.message.message;
+        }
+
+        return "Something went wrong. Please try again.";
+    };
+
+    // Send message to AI
     const handleSend = async () => {
 
-        if (!message.trim() || isSending) return;
+        const userMessage = message.trim();
 
-        const userMessage = message;
+        if (!userMessage || isSending || isSubmit) return;
 
-        // User message show karo
         setMessages((prev) => [
             ...prev,
             {
@@ -30,86 +66,168 @@ const AddProducts = () => {
         ]);
 
         setMessage("");
-        setIsSending(true)
+        setIsSending(true);
 
         try {
 
             const response = await handleAddProducts(userMessage);
 
-            // Server ka response chat me show karo
-            console.log(response)
-            setIsSending(false)
-            setMessages((prev) => [
-                ...prev,
-                {
-                    type: "server",
-                    text: response.message
-                }
-            ]);
+            console.log("Add Product Response:", response);
 
-            console.log(response)
-
-            // Agar product information complete hai
-            if (response.success === true) {
+            // Product information complete
+            if (response?.success === true) {
 
                 setIsComplete(true);
-                setProductData(response.productDetails);
+                setProductData(response.productDetails || null);
 
-            }else if(response.success === false && response.status === "missing"){
-              
-              setIsComplete(false)
-              setProductData(null)
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "server",
+                        text: getServerMessage(response) ===
+                            "Something went wrong. Please try again."
+                            ? "Product information is complete. Please review the details and submit."
+                            : getServerMessage(response)
+                    }
+                ]);
+
             }
-          
+
+            // More information required
+            else if (
+                response?.success === false &&
+                response?.status === "missing"
+            ) {
+
+                setIsComplete(false);
+                setProductData(null);
+
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "server",
+                        text: getServerMessage(response)
+                    }
+                ]);
+
+            }
+
+            // Other unsuccessful response
+            else {
+
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "server",
+                        text: getServerMessage(response)
+                    }
+                ]);
+
+            }
 
         } catch (error) {
-            setIsSending(false)
+
+            console.error("Add Product Error:", error);
 
             setMessages((prev) => [
                 ...prev,
                 {
                     type: "server",
-                    text: "Something went wrong. Please try again."
+                    text:
+                        error.response?.data?.message?.question ||
+                        error.response?.data?.message ||
+                        error.message ||
+                        "Something went wrong. Please try again."
                 }
             ]);
-            throw error
 
+        } finally {
+            setIsSending(false);
         }
     };
 
-
+    // Cancel product confirmation
     const handleCancel = () => {
+
+        if (isSubmit) return;
+
         setIsComplete(false);
         setProductData(null);
+
     };
 
-
+    // Submit product details
     const handleSubmit = async () => {
-      if(isSubmit || !productData){
-        return
-      }
-      // separate submit API call
-      try {
-        setIsSubmit(true)
-        const response = await handleSubmitDetails(productData);
 
-        console.log("Submitting product:", productData);
+        if (isSubmit || !productData) return;
 
+        setIsSubmit(true);
 
-      } catch (error) {
-        console.log(error.message)
-        setIsSubmit(false)
-        throw error
-      }
+        try {
 
+            const response = await handleSubmitDetails(productData);
+
+            console.log("Submit Product Response:", response);
+
+            if (response?.success === true) {
+
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "server",
+                        text: getServerMessage(response) ===
+                            "Something went wrong. Please try again."
+                            ? "Product added successfully!"
+                            : getServerMessage(response)
+                    }
+                ]);
+
+                setIsComplete(false);
+                setProductData(null);
+
+            } else {
+
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        type: "server",
+                        text: getServerMessage(response)
+                    }
+                ]);
+
+            }
+
+        } catch (error) {
+
+            console.error("Submit Product Error:", error);
+
+            setMessages((prev) => [
+                ...prev,
+                {
+                    type: "server",
+                    text:
+                        error.response?.data?.message?.question ||
+                        error.response?.data?.message ||
+                        error.message ||
+                        "Unable to save product. Please try again."
+                }
+            ]);
+
+        } finally {
+            setIsSubmit(false);
+        }
     };
 
+    // Auto scroll to latest message
     useEffect(() => {
-      messagesEndRef.current?.scrollIntoView({
-          behavior: "smooth"
-      });
-    }, [messages]);
 
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }, [messages, isComplete]);
+
+    const warranty = productData?.warranty?.[0];
 
     return (
         <main className="h-dvh w-full bg-cyan-900 pt-14">
@@ -141,7 +259,6 @@ const AddProducts = () => {
                         </div>
                     )}
 
-
                     {/* Chat Messages */}
                     {messages.length > 0 && (
                         <div className="mx-auto max-w-4xl space-y-4">
@@ -165,13 +282,11 @@ const AddProducts = () => {
                                         }`}
                                     >
                                         {item.text}
-                                        <div ref={messagesEndRef} />
                                     </div>
 
                                 </div>
 
                             ))}
-
 
                             {/* Product Confirmation */}
                             {isComplete && productData && (
@@ -188,68 +303,55 @@ const AddProducts = () => {
                                             <span className="font-medium text-white">
                                                 Product:
                                             </span>{" "}
-                                            {productData.productName}
+                                            {productData.productName || "Not provided"}
                                         </p>
 
                                         <p>
                                             <span className="font-medium text-white">
                                                 Brand:
                                             </span>{" "}
-                                            {productData.brand}
+                                            {productData.brand || "Not provided"}
                                         </p>
 
                                         <p>
                                             <span className="font-medium text-white">
                                                 Category:
                                             </span>{" "}
-                                            {productData.category}
+                                            {productData.category || "Not provided"}
                                         </p>
 
                                         <p>
                                             <span className="font-medium text-white">
                                                 Purchase Date:
                                             </span>{" "}
-                                            {new Date(productData.purchaseDate).toLocaleDateString(
-                                              "en-IN",
-                                              {
-                                                day: "2-digit",
-                                                month: "short",
-                                                year:"numeric"
-                                              }
-                                            )}
+                                            {formatDate(productData.purchaseDate)}
                                         </p>
+
                                         <p>
                                             <span className="font-medium text-white">
                                                 Warranty Expiry:
                                             </span>{" "}
-                                            {new Date(productData.warranty[0].expiryDate).toLocaleDateString(
-                                                "en-IN",
-                                                {
-                                                    day: "2-digit",
-                                                    month: "short",
-                                                    year: "numeric"
-                                                }
-                                            )}
+                                            {formatDate(warranty?.expiryDate)}
                                         </p>
 
                                     </div>
-
 
                                     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-end">
 
                                         <button
                                             type="button"
                                             onClick={handleSubmit}
-                                            className="rounded-lg bg-cyan-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-cyan-500"
+                                            disabled={isSubmit || isSending}
+                                            className="rounded-lg bg-cyan-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
                                         >
-                                            {isSubmit ? "Saving..." : "Submit" }
+                                            {isSubmit ? "Saving..." : "Submit"}
                                         </button>
 
                                         <button
                                             type="button"
                                             onClick={handleCancel}
                                             disabled={isSubmit}
-                                            className="rounded-lg border border-slate-600 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
+                                            className="rounded-lg border border-slate-600 px-5 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                                         >
                                             Cancel
                                         </button>
@@ -260,11 +362,20 @@ const AddProducts = () => {
 
                             )}
 
+                            {/* Scroll Target */}
+                            <div ref={messagesEndRef} />
+
+                        </div>
+                    )}
+
+                    {/* Loading Message */}
+                    {isSending && (
+                        <div className="mx-auto mt-4 max-w-4xl text-sm text-slate-400">
+                            AI is processing your information...
                         </div>
                     )}
 
                 </section>
-
 
                 {/* Input */}
                 <section className="shrink-0 border-t border-slate-800 bg-slate-950 p-3 sm:p-4">
@@ -274,18 +385,25 @@ const AddProducts = () => {
                         <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
                             placeholder="Enter product information..."
                             rows="1"
-                            className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 sm:text-base"
+                            disabled={isSending || isSubmit}
+                            className="max-h-32 min-h-11 flex-1 resize-none rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 disabled:opacity-50 sm:text-base"
                         />
 
                         <button
                             type="button"
                             onClick={handleSend}
-                            
-                            className="h-11 rounded-xl bg-cyan-950 px-4 text-sm font-semibold text-white transition hover:bg-cyan-200 active:bg-cyan-600 sm:px-6"
+                            disabled={isSending || isSubmit || !message.trim()}
+                            className="h-11 rounded-xl bg-cyan-950 px-4 text-sm font-semibold text-white transition hover:bg-cyan-200 active:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
                         >
-                            Send
+                            {isSending ? "Sending..." : "Send"}
                         </button>
 
                     </div>
