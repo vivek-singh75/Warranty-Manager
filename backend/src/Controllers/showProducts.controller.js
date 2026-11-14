@@ -36,7 +36,6 @@ async function listproductsByQuery(req , res) {
             let aiResponse = await queryToDays(history);
 
             aiResponse = JSON.parse(aiResponse)
-            console.log(aiResponse)
 
             if(!(aiResponse.success)){
                 history.push({
@@ -74,7 +73,7 @@ async function listproductsByQuery(req , res) {
         }
 
     } catch (error) {
-                console.error(error);
+        console.error(error);
 
         return res.status(500).json({
             success: false,
@@ -83,7 +82,6 @@ async function listproductsByQuery(req , res) {
     }
 
 }
-
 
  
 async function top10Products(req , res) {
@@ -109,7 +107,6 @@ async function top10Products(req , res) {
             })
             .limit(5);
 
-        console.log(products)
 
         res.status(200).json({
             success : true,
@@ -166,14 +163,11 @@ async function fetchProductController(req , res) {
 
 
 
-
-
 module.exports={
     listproductsByQuery,
     top10Products,
     fetchProductController,
 }
-
 
 
 async function getExpiringProducts(userId, days) {

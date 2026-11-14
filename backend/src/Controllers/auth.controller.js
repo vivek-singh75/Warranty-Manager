@@ -1,4 +1,5 @@
-const userModel = require("../Schema/userModel")
+const userModel = require("../Schema/userModel");
+const productModel=  require("../Schema/productModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -118,11 +119,17 @@ async function getMeController(req , res) {
 
         const user = await userModel.findById(userId)
 
-        if(!user){
+        if(!user){ 
             return res.status(404).json({
                 message : "user not found"
             })
         }
+
+        const productdata = (await productModel.find({userId})).length
+
+        const totalProducts  = productdata.length
+
+
  
         res.status(200).json({
             message : "user data",
@@ -130,7 +137,8 @@ async function getMeController(req , res) {
                 id: user._id,
                 name : user.name,
                 email : user.email
-            }
+            },
+            productdata
         })
 
     } catch (error) {

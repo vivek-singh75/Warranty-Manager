@@ -4,108 +4,170 @@ const userModel = require("../Schema/userModel");
 
 
 
-const history= [];       
+const userHistories = new Map();
 
-async function addProduct(req , res) {
+async function addProduct(req, res) {
+    const userId = req.user?.id || req.user?._id;
+    const { userQuery } = req.body;
+
+    if (!userId) {
+        return res.status(401).json({
+            success: false,
+            message: "User is not authenticated"
+        });
+    }
+
+    if (!userQuery || typeof userQuery !== "string" || !userQuery.trim()) {
+        return res.status(400).json({
+            success: false,
+            message: "userQuery is required"
+        });
+    }
+
+    const id = userId.toString();
+
+    // Get or create user-specific history
+    if (!userHistories.has(id)) {
+        userHistories.set(id, []);
+    }
+
+    const history = userHistories.get(id);
+
+    // Store current user's message
+    history.push({
+        type: "text",
+        text: `${userQuery.trim()} role user`
+    });
 
     try {
+        const response = await productDetailsFromAI(history);
 
-        const {userQuery} = req.body;
+        const aiResponse = response.output_text;
 
-        const userId = req.user.id;
-
-        if(!userId){ 
-            return res.status(404).json({
-                success: false,
-                message : "userId is not Defined"
-            })
-        }
- 
-        if(!userQuery){
-            return res.status(501).json({
-                 success: false,
-                message : "userQuery is not Defined"
-            })
+        if (!aiResponse) {
+            throw new Error("AI returned an empty response");
         }
 
-        history.push({
-            type : "text",
-            text : `${userQuery} role user`
-        })   
+        let output;
 
-        const response = await productDetailsFromAI(history)
+        try {
+            // Remove markdown code fences if present
+            const cleanedResponse = aiResponse
+                .replace(/```json/gi, "")
+                .replace(/```/g, "")
+                .trim();
 
-        const output = JSON.parse(response.output_text)
-
-
-        if(output.status === "missing"){
-
+            output = JSON.parse(cleanedResponse);
+        } catch (error) {
+           
             history.push({
-                type : "text",
-                text : `${response.missing} , ${response.question} role LLM`
+                type: "text",
+                text: `${aiResponse} role LLM`
             });
 
-            return res.status(209).json({
+            return res.status(200).json({
                 success: false,
-                status: output.status,
-                message: output.question
-            })
-        }  
-
-        const startDate = new Date(output.product.warranty.startDate);
-
-        const expiryDate = new Date(startDate);
-            expiryDate.setMonth(
-                expiryDate.getMonth() + output.product.warranty.durationMonths
-            );
-
-        const productDetails ={
-            productName: output.product.productName,
-            brand : output.product.brand,
-            category : output.product.category,
-            purchaseDate : output.product.purchaseDate,
-            purchasePrice : output.product.purchasePrice,
-            warranty:[{
-                durationMonths: output.product.warranty.durationMonths,
-                startDate: output.product.warranty.startDate,
-                expiryDate : expiryDate,
-                type: output.product.warranty.type,
-                placeOfWarrantyCard: output.product.warranty.placeOfWarrantyCard
-            }]
+                status: "missing",
+                message: aiResponse
+            });
         }
 
+        // Required information is missing
+        if (output.status === "missing") {
+            const question =
+                output.question || "Please provide the missing information.";
 
-        // const productDetailss = await productModel.create({
-        //     userId : userId,
-        //     productName: output.product.productName,
-        //     brand : output.product.brand,
-        //     category : output.product.category,
-        //     purchaseDate : output.product.purchaseDate,
-        //     purchasePrice : output.product.purchasePrice,
-        //     warranty:[{
-        //         durationMonths: output.product.warranty.durationMonths,
-        //         startDate: output.product.warranty.startDate,
-        //         expiryDate : expiryDate,
-        //         type: output.product.warranty.type,
-        //     }]
-        // })
+            history.push({
+                type: "text",
+                text: `${question} role LLM`
+            });
 
-        res.status(200).json({
+            return res.status(200).json({
+                success: false,
+                status: "missing",
+                message: question,
+                missing: output.missing || []
+            });
+        }
+
+        // Validate AI response
+        if (
+            output.status !== "complete" ||
+            !output.product ||
+            !output.product.productName ||
+            !output.product.purchaseDate ||
+            !output.product.warranty
+        ) {
+            throw new Error("Invalid product details returned by AI");
+        }
+
+        const product = output.product;
+        const warranty = product.warranty;
+
+        const durationMonths = Number(warranty.durationMonths);
+        const startDate = new Date(warranty.startDate);
+        const purchaseDate = new Date(product.purchaseDate);
+
+        if (
+            !Number.isFinite(durationMonths) ||
+            durationMonths < 1 ||
+            !Number.isFinite(startDate.getTime()) ||
+            !Number.isFinite(purchaseDate.getTime())
+        ) {
+            throw new Error("Invalid date or warranty duration");
+        }
+
+        // Calculate expiry date on server
+        const expiryDate = new Date(startDate);
+        expiryDate.setMonth(
+            expiryDate.getMonth() + durationMonths
+        );
+
+        const productDetails = {
+            productName: product.productName,
+            brand: product.brand || "",
+            category: product.category || "",
+            purchaseDate,
+            purchasePrice: product.purchasePrice ?? null,
+
+            warranty: [
+                {
+                    durationMonths,
+                    startDate,
+                    expiryDate,
+                    type: warranty.type || "Manufacturer",
+                    placeOfWarrantyCard:
+                        warranty.placeOfWarrantyCard || ""
+                }
+            ],
+
+            serialNumber: product.serialNumber || "",
+            seller: product.seller || "",
+            notes: product.notes || ""
+        };
+
+        // Product information is complete.
+        // Clear only this user's conversation history.
+        userHistories.delete(id);
+
+        return res.status(200).json({
             success: true,
-            message : "Check Product details and Submit",
+            message: "Check Product details and Submit",
             productDetails
         });
 
-
     } catch (error) {
-        console.log(error)
+        console.error("Add Product Error:", error);
 
-        return res.status(503).json({
+        // Remove the failed user message so it isn't
+        // accidentally repeated in the next AI request.
+        history.pop();
+
+        return res.status(500).json({
             success: false,
-            message : `${error.message}`
-        })
-    }   
-    
+            message: error.message || "Something went wrong"
+        });
+    }
 }
 
 
