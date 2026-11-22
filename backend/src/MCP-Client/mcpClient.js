@@ -14,7 +14,8 @@ const client = new Client({
 );
  
 const transport = new StreamableHTTPClientTransport(
-    new URL("http://localhost:3001/mcp")
+   // new URL("http://localhost:3001/mcp")
+    new URL("https://warranty-manager-g0t7.onrender.com/mcp")
 );
  
  
