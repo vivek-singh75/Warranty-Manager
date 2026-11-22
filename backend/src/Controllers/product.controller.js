@@ -222,7 +222,7 @@ async function submitProducts(req ,res) {
                 success : false,
                 message : "products details not saved "
             })
-        }
+        }      
 
         clearChatSession(id, sessionId);
 
