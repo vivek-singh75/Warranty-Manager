@@ -1,5 +1,5 @@
 Product goal
-A personal warranty manager where users can add warranty information using normal text or an image, store it securely, receive expiry reminders, and find warranty information using natural-language queries.
+A personal warranty manager where users can add warranty information using normal text , store it securely, receive expiry reminders, and find warranty information using natural-language queries.
 
 MVP features
 Authentication
