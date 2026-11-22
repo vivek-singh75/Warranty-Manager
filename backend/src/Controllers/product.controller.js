@@ -224,7 +224,7 @@ async function submitProducts(req ,res) {
             })
         }      
 
-        clearChatSession(id, sessionId);
+        clearChatSession(userId, sessionId);
 
         res.status(200).json({
             success: true ,
