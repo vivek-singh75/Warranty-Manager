@@ -2,7 +2,7 @@ const userModel = require("../Schema/userModel");
 const productModel=  require("../Schema/productModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+ 
 
 async function registerUserController(req , res) {
     try {

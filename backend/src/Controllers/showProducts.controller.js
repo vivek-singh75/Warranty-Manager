@@ -4,12 +4,16 @@ const queryToTool = require("../Services/ai.queryToTool")
 
 
 
-const history = []
+
+const {  getChatHistory } = require("../Services/chatHistory");
+
 
 async function listproductsByQuery(req, res) {
+
     try {
         const { userQuery } = req.body;
-        const userId = req.user?.id;
+        const userId = req.user?.id?.toString();
+        const sessionId = req.headers["x-chat-session-id"];
 
         if (!userId) {
             return res.status(401).json({
@@ -18,16 +22,26 @@ async function listproductsByQuery(req, res) {
             });
         }
 
-        if (!userQuery) {
+        if (!sessionId || typeof sessionId !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Chat session ID is required"
+            });
+        }
+
+        if (!userQuery || typeof userQuery !== "string" || !userQuery.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "userQuery is not provided"
-            }); 
+            });
         }
+
+        // Get history belonging to this user and browser session
+        const history = getChatHistory(userId, sessionId);
 
         history.push({
             type: "text",
-            text: `${userQuery} role user`
+            text: `${userQuery.trim()} role user`
         });
 
         // Gemini selects the appropriate MCP tool
@@ -58,16 +72,12 @@ async function listproductsByQuery(req, res) {
             throw new Error(`MCP tool not found: ${toolName}`);
         }
 
-        // Backend supplies authenticated userId
-        const finalArguments = {
-            ...toolArguments,
-            userId: userId.toString()
-        };
-        if (aiResponse.toolName === "getProductByMonths") {
+        // Validate months
+        if (toolName === "getProductByMonths") {
             if (
-                !Number.isInteger(aiResponse.arguments.months) ||
-                aiResponse.arguments.months < 1 ||
-                aiResponse.arguments.months > 36
+                !Number.isInteger(toolArguments.months) ||
+                toolArguments.months < 1 ||
+                toolArguments.months > 36
             ) {
                 return res.status(400).json({
                     success: false,
@@ -76,6 +86,12 @@ async function listproductsByQuery(req, res) {
             }
         }
 
+        // Backend supplies authenticated userId
+        const finalArguments = {
+            ...toolArguments,
+            userId
+        };
+
         // Execute selected MCP tool
         const response = await client.callTool({
             name: toolName,
@@ -83,14 +99,17 @@ async function listproductsByQuery(req, res) {
         });
 
         if (response.isError) {
-            throw new Error(response.content?.[0]?.text || "MCP tool execution failed");
+            throw new Error(
+                response.content?.[0]?.text || "MCP tool execution failed"
+            );
         }
 
         const toolResult = JSON.parse(response.content[0].text);
 
-       // console.log(toolResult)
         if (!toolResult.success) {
-            throw new Error(toolResult.message || "Unable to fetch products");
+            throw new Error(
+                toolResult.message || "Unable to fetch products"
+            );
         }
 
         history.push({
@@ -193,8 +212,9 @@ async function fetchProductController(req , res) {
     }
 }
 
+ 
 
-
+ 
 module.exports={
     listproductsByQuery,
     top10Products,
@@ -220,4 +240,41 @@ async function getExpiringProducts(userId, days) {
     .limit(10);
 
     return products;
+}
+
+
+const {
+    clearChatSession,
+    clearUserChatHistory
+} = require("../Services/chatHistory");
+
+async function clearChatHistoryController(req, res) {
+    try {
+        const userId = req.user?.id?.toString();
+        const sessionId = req.headers["x-chat-session-id"];
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized access"
+            });
+        }
+
+        if (sessionId) {
+            clearChatSession(userId, sessionId);
+        } else {
+            clearUserChatHistory(userId);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Chat history cleared"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
 }

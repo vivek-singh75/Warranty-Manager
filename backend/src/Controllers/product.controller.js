@@ -4,42 +4,51 @@ const userModel = require("../Schema/userModel");
 
 
 
-const userHistories = new Map();
+
+const {
+    getChatHistory,
+    clearChatSession } = require("../Services/chatHistory");
 
 async function addProduct(req, res) {
-    const userId = req.user?.id || req.user?._id;
-    const { userQuery } = req.body;
-
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: "User is not authenticated"
-        });
-    }
-
-    if (!userQuery || typeof userQuery !== "string" || !userQuery.trim()) {
-        return res.status(400).json({
-            success: false,
-            message: "userQuery is required"
-        });
-    }
-
-    const id = userId.toString();
-
-    // Get or create user-specific history
-    if (!userHistories.has(id)) {
-        userHistories.set(id, []);
-    }
-
-    const history = userHistories.get(id);
-
-    // Store current user's message
-    history.push({
-        type: "text",
-        text: `${userQuery.trim()} role user`
-    });
+    let history;
 
     try {
+        const userId = req.user?.id || req.user?._id;
+        const { userQuery } = req.body;
+        const sessionId = req.headers["x-chat-session-id"];
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: "User is not authenticated"
+            });
+        }
+
+        if (!sessionId || typeof sessionId !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Chat session ID is required"
+            });
+        }
+
+        if (!userQuery || typeof userQuery !== "string" || !userQuery.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "userQuery is required"
+            });
+        }
+
+        const id = userId.toString();
+
+        // Get session-specific history (5-minute TTL)
+        history = getChatHistory(id, sessionId);
+
+        // Store user's message
+        history.push({
+            type: "text",
+            text: `${userQuery.trim()} role user`
+        });
+
         const response = await productDetailsFromAI(history);
 
         const aiResponse = response.output_text;
@@ -51,15 +60,15 @@ async function addProduct(req, res) {
         let output;
 
         try {
-            // Remove markdown code fences if present
             const cleanedResponse = aiResponse
                 .replace(/```json/gi, "")
                 .replace(/```/g, "")
                 .trim();
 
             output = JSON.parse(cleanedResponse);
+
         } catch (error) {
-           
+
             history.push({
                 type: "text",
                 text: `${aiResponse} role LLM`
@@ -146,9 +155,8 @@ async function addProduct(req, res) {
             notes: product.notes || ""
         };
 
-        // Product information is complete.
-        // Clear only this user's conversation history.
-        userHistories.delete(id);
+        // Clear only this session after successful completion
+        
 
         return res.status(200).json({
             success: true,
@@ -159,16 +167,13 @@ async function addProduct(req, res) {
     } catch (error) {
         console.error("Add Product Error:", error);
 
-        // Remove the failed user message so it isn't
-        // accidentally repeated in the next AI request.
-        history.pop();
-
         return res.status(500).json({
             success: false,
             message: error.message || "Something went wrong"
         });
     }
 }
+
 
 
 async function submitProducts(req ,res) {
@@ -218,6 +223,8 @@ async function submitProducts(req ,res) {
                 message : "products details not saved "
             })
         }
+
+        clearChatSession(id, sessionId);
 
         res.status(200).json({
             success: true ,
