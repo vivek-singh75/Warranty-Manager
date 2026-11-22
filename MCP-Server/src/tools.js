@@ -60,7 +60,7 @@ function productsByDays(server) {
                                 success: true,
                                 days,
                                 totalProducts: result.length,
-                                products: result
+                                productData: result
                             })
                         }
                     ]
@@ -110,7 +110,8 @@ function getProductByName(server) {
                     }
                 })
                 
-                console.log(product)
+                // console.log(product)
+                const productArray = product? [product]: []
 
                 return {
                     content:[
@@ -118,7 +119,7 @@ function getProductByName(server) {
                             type: "text",
                             text :JSON.stringify({
                                 success : true,
-                                productData: product
+                                productData: productArray
                             })
                         }
                     ]
@@ -229,7 +230,7 @@ function getProductByMonths(server){
                                 startDate,
                                 endDate,
                                 totalProducts: result.length,
-                                products: result
+                                productData: result
                             })
                         }
                     ]
@@ -262,8 +263,8 @@ module.exports = {
     getProductByMonths
 };
 
-
-
+ 
+    
 
 
 //  "getProductsByBrand",
