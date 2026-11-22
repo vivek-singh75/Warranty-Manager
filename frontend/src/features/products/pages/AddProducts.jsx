@@ -230,7 +230,7 @@ const AddProducts = () => {
     const warranty = productData?.warranty?.[0];
 
     return (
-        <main className="h-dvh w-full bg-cyan-900 pt-14">
+        <main className="h-dvh w-full bg-cyan-900 ">
 
             <div className="flex h-full w-full flex-col bg-slate-950">
 
@@ -378,7 +378,7 @@ const AddProducts = () => {
                 </section>
 
                 {/* Input */}
-                <section className="shrink-0 border-t border-slate-800 bg-slate-950 p-3 sm:p-4">
+                <section className="shrink-0 border-t border-slate-800 bg-slate-950 p-3 w-screen  fixed bottom-1 sm:p-4  ">
 
                     <div className="mx-auto flex max-w-4xl items-end gap-2 sm:gap-3">
 

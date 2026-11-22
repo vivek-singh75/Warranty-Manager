@@ -349,10 +349,10 @@ const ProductsDetails = () => {
                                             Matching Products
                                         </h3>
 
-                                        {response.products?.length > 0 ? (
+                                        {response.productData?.length > 0 ? (
                                             <div className="grid gap-3 sm:grid-cols-2">
 
-                                                {response.products.map(product => (
+                                                {response.productData.map(product => (
                                                     <ProductCard
                                                         key={product._id}
                                                         product={product}

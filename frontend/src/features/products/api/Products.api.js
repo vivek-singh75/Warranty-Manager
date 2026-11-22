@@ -1,15 +1,21 @@
 import apiClient from "../../../services/apiClient";
 
 
+import { getChatSessionId } from "../../../services/ChatSession";
+
 export const addProducts = async (message) => {
     try {
-        const response = await apiClient.post("/products/add", {
-            userQuery: message
-        });
-
-        console.log(response);
+        const response = await apiClient.post(
+            "/products/add",
+            { userQuery: message },
+            {
+                headers: {
+                    "x-chat-session-id": getChatSessionId()
+                }
+            }
+        );
+ 
         return response.data;
-
     } catch (error) {
         console.log(error.response?.data?.message || error.message);
         throw error;
@@ -32,6 +38,11 @@ export const submitProducts = async (productData) => {
                     type: productData.warranty[0].type
                 }
             ]
+        },  
+        {
+            headers: {
+                "x-chat-session-id": getChatSessionId()
+            }
         });
 
         return response.data;
@@ -46,7 +57,13 @@ export const detailsByQuery = async (userQuery) => {
     try {
         const response = await apiClient.post("/products/listproducts", {
             userQuery: userQuery
-        });
+        },
+        {
+            headers: {
+                "x-chat-session-id": getChatSessionId()
+            }
+        }
+    );
 
         return response.data;
 
