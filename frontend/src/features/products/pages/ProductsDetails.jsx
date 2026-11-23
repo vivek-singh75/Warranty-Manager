@@ -379,7 +379,7 @@ const ProductsDetails = () => {
                     )}
 
                     {/* Input Area */}
-                    <div className="absolute fixed bottom-0 left-0 w-full  border-t border-slate-800 bg-slate-950/95 p-3 backdrop-blur sm:p-3 ">
+                    <div className=" fixed bottom-0 left-0 w-full  border-t border-slate-800 bg-slate-950/95 p-3 backdrop-blur sm:p-3 ">
 
                         <div className="mx-auto flex max-w-3xl gap-2">
 

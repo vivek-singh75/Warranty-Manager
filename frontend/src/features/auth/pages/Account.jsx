@@ -41,7 +41,7 @@ const Account = () => {
     };
 
     return (
-        <main className="min-h-[calc(100vh-4rem)] bg-slate-950 px-4 py-6 pt-15 text-white sm:px-6 md:px-8">
+        <main className="min-h-[calc(100vh-4rem)] bg-slate-950 px-4 py-6  text-white sm:px-6 md:px-8">
 
             <div className="mx-auto max-w-4xl">
 

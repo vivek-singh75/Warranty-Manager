@@ -50,7 +50,7 @@ const InfoItem = ({ icon: Icon, label, value }) => (
 
         <div className="min-w-0">
             <p className="mb-1 text-xs text-slate-500">{label}</p>
-            <p className="break-words text-sm font-medium text-slate-200">
+            <p className="wrap-break text-sm font-medium text-slate-200">
                 {value || "Not provided"}
             </p>
         </div>
@@ -124,7 +124,7 @@ const ProductDetailByID = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 blur-[100%] px-3 pb-6 pt-15 text-white sm:px-5 md:px-8">
+        <div className="min-h-screen bg-slate-950 blur-[100%] px-3 pb-6 pt-5 text-white sm:px-5 md:px-8">
 
             <div className="mx-auto max-w-5xl">
 
@@ -156,7 +156,7 @@ const ProductDetailByID = () => {
 
                         <div className="min-w-0 flex-1">
 
-                            <h1 className="break-words text-xl font-bold sm:text-2xl">
+                            <h1 className="wrap-break text-xl font-bold sm:text-2xl">
                                 {product.productName}
                             </h1>
 
