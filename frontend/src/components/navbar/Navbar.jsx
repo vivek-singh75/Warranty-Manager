@@ -78,13 +78,13 @@ const Navbar = () => {
                     {isAuthenticated ? (
                         <>
                             {/* Notification */}
-                            <button
+                            <NavLink to= "/notification"
                                 type="button"
                                 aria-label="Notifications"
                                 className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-blue-100 bg-white text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                             >
                                 <Bell size={20} />
-                            </button>
+                            </NavLink>
 
                             {/* Account */}
                             <div className="relative">
@@ -207,14 +207,14 @@ const Navbar = () => {
                                     Products
                                 </NavLink>
 
-                                <button
+                                <NavLink to= "/notification"
                                     type="button"
                                     onClick={closeMenu}
                                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-100 hover:text-blue-700"
                                 >
                                     <Bell size={19} />
                                     Notifications
-                                </button>
+                                </NavLink>
 
                                 {/* Mobile Account */}
                                 <NavLink to="/account"

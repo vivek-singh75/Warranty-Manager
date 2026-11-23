@@ -10,7 +10,7 @@ import ProductDetailByID from "./features/products/pages/ProductDetailByID.jsx";
 import Home from "./features/auth/pages/Home.jsx";
 import PublicLayout from "./components/PublicLayout.jsx";
 import Account from "./features/auth/pages/Account.jsx";
-
+import Notification from "./features/products/pages/Notification.jsx"
 
 
 export const router = createHashRouter([
@@ -57,6 +57,10 @@ export const router = createHashRouter([
                         path: "/account",
                         element: <Account/>
                     },
+                    {
+                        path: "/notification",
+                        element: <Notification/>
+                    }
                 ]
             }
         ]

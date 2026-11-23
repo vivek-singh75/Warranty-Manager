@@ -109,3 +109,15 @@ export const deleteProductById = async (id) => {
         throw error;
     }
 }
+
+
+export const expiringNotification = async () => {
+    try {
+        const response = await apiClient.get("/products/notification");
+
+        return response.data;
+    } catch (error) {
+        console.log(error.response?.data?.message || error.message);
+        throw error;
+    }
+}

@@ -7,7 +7,8 @@ import {
     detailsByQuery,
     getTopProduct,
     productDetailsByID,
-    deleteProductById
+    deleteProductById,
+    expiringNotification
 } from "../api/Products.api";
 
 export const ProductContext = createContext(null);
@@ -84,6 +85,18 @@ export const ProductProvider = ({ children }) => {
         }
     }
 
+    const handleExpiringNotification = async () => {
+        try {
+            const response = await expiringNotification();
+
+            return response
+
+        } catch (err) {
+            setError(err.response?.data?.message || err.message);
+            throw err;
+        }
+    }
+
     const value = {
         loading,
         error,
@@ -93,7 +106,8 @@ export const ProductProvider = ({ children }) => {
         handleDetailsByQuery,
         handleGetTopProduct,
         handleproductDetailsByID,
-        handleDeleteProductById
+        handleDeleteProductById,
+        handleExpiringNotification
     };
 
     return (
