@@ -96,7 +96,7 @@ export const ProductProvider = ({ children }) => {
             throw err;
         }
     }
-
+ 
     const value = {
         loading,
         error,
