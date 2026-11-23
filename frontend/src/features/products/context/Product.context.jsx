@@ -6,7 +6,8 @@ import {
     submitProducts,
     detailsByQuery,
     getTopProduct,
-    productDetailsByID
+    productDetailsByID,
+    deleteProductById
 } from "../api/Products.api";
 
 export const ProductContext = createContext(null);
@@ -70,6 +71,19 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+
+    const handleDeleteProductById = async (id) => {
+        try {
+            const response = await deleteProductById(id);
+
+            return response
+
+        } catch (err) {
+            setError(err.response?.data?.message || err.message);
+            throw err;
+        }
+    }
+
     const value = {
         loading,
         error,
@@ -78,7 +92,8 @@ export const ProductProvider = ({ children }) => {
         handleSubmitDetails,
         handleDetailsByQuery,
         handleGetTopProduct,
-        handleproductDetailsByID
+        handleproductDetailsByID,
+        handleDeleteProductById
     };
 
     return (

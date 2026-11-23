@@ -8,7 +8,8 @@ import {
     MapPin, FileText, LoaderCircle, AlertCircle
 } from "lucide-react";
 
-import { useProducts } from "../hooks/useProducts";
+import { useProducts} from "../hooks/useProducts";
+import { useState } from "react";
 
 const formatDate = (date) => {
     if (!date) return "Not provided";
@@ -58,21 +59,40 @@ const InfoItem = ({ icon: Icon, label, value }) => (
 
 const ProductDetailByID = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
+    
     const {
         product,
         loading,
         error,
-        handleproductDetailsByID
+        handleproductDetailsByID,
+        handleDeleteProductById
     } = useProducts();
 
     useEffect(() => {
         if (id) handleproductDetailsByID(id);
     }, [id]);
 
-    const handleDelete = () => {
-        console.log("Delete product:", id);
+    
+    const handleDelete = async () => {
+        try {
+            const result = await handleDeleteProductById(id)
+            
+            if(result.success === true){
+                if(result.isSuccess = true){
+                    alert("Product Deleted")
+                    navigate("/productsdetails")
+                }else{
+                    alert("product not deleted")
+                }
+            }else{
+                alert("Failed Please try Again")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+        
     };
 
     if (loading) {
@@ -154,13 +174,14 @@ const ProductDetailByID = () => {
 
                         <div className="flex gap-2">
 
-                            <button
+                            {/*  **Edit button removed **
+                             <button
                                 onClick={() => navigate(`/products/edit/${id}`)}
                                 className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm hover:bg-blue-700"
                             >
                                 <Pencil size={15} />
                                 Edit
-                            </button>
+                            </button> */}
 
                             <button
                                 onClick={handleDelete}

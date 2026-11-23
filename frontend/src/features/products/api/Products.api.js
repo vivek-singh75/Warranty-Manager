@@ -96,3 +96,16 @@ export const productDetailsByID = async (id) => {
         throw error;
     }
 };
+
+export const deleteProductById = async (id) => {
+
+    try {
+        const response = await apiClient.delete(`/products/delete/${id}`);
+
+        return response.data;
+
+    } catch (error) {
+        console.log(error.response?.data?.message || error.message);
+        throw error;
+    }
+}
