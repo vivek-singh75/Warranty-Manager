@@ -164,7 +164,7 @@ export default function Notifications() {
 
   // Open product details
   const handleOpenProduct = (productId) => {
-    navigate(`/products/${productId}`);
+    navigate(`/productDetailsById/${productId}`);
   };
 
   // Dismiss notification from current UI
