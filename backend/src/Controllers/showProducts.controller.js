@@ -9,7 +9,7 @@ const {  getChatHistory } = require("../Services/chatHistory");
 
 
 async function listproductsByQuery(req, res) {
-
+    
     try {
         const { userQuery } = req.body;
         const userId = req.user?.id?.toString();
@@ -123,7 +123,6 @@ async function listproductsByQuery(req, res) {
             message: toolResult.message || "Data fetched successfully",
             ...toolResult
         });
-
     } catch (error) {
         console.error("listproductsByQuery error:", error);
 

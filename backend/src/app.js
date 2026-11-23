@@ -7,6 +7,7 @@ const cors = require("cors")
 const authRouter = require("./Routes/auth.route");
 const productRouter = require("./Routes/product.routes");
 const showRouter = require("./Routes/showProduct.route");
+const NotifiRouter = require("./Routes/notification.route")
 const errorMiddleware = require("./Middleware/error.middleware")
 
 
@@ -39,5 +40,6 @@ app.use("/api/products" , productRouter);
 
 app.use("/api/products" , showRouter)
 
+app.use("/api/products" , NotifiRouter);
 
 module.exports = app
