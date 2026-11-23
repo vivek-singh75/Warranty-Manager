@@ -52,7 +52,6 @@ async function loginController(req, res) {
 
     try {
         const { email, password } = req.body;
-
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -115,10 +114,8 @@ async function loginController(req, res) {
             message: "Internal server error"
         });
     }
+
 }
-
-module.exports = loginController;
-
 
 
 async function getMeController(req , res) {

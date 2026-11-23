@@ -3,11 +3,10 @@ const productDetailsFromAI = require("../Services/ai.service");
 const userModel = require("../Schema/userModel");
 
 
-
-
 const {
     getChatHistory,
     clearChatSession } = require("../Services/chatHistory");
+
 
 async function addProduct(req, res) {
     let history;
@@ -175,7 +174,6 @@ async function addProduct(req, res) {
 }
 
 
-
 async function submitProducts(req ,res) {
     try {
         const Details = req.body;
@@ -243,8 +241,55 @@ async function submitProducts(req ,res) {
 }
 
 
+async function editProductController(req , res) {
+    
+}
+
+
+async function deleteProductController(req , res) {
+    try {
+        const userId = req.user.id;
+        const productId = req.params.id;
+
+        if(!userId){
+            return res.status(500).json({
+                success : false,
+                message : "unauthorized access"
+            })
+        }
+
+        if(!productId){
+            return res.status(500).json({
+                success : false,
+                message : "Product information is not provided"
+            })
+        }
+
+    
+        const product = await productModel.findByIdAndDelete(productId)
+
+        const isSuccess = !!product
+
+        res.status(200).json({
+            success: true,
+            isSuccess   //true if product is deleted and false if not deleted
+        })
+
+    } catch (error) {
+        console.log(error.message)
+
+        return res.status(503).json({
+            success: false,
+            message : `${error.message}`
+        })
+    }
+}
+
+
 
 module.exports = {
     addProduct,
     submitProducts,
+    editProductController,
+    deleteProductController
 }
