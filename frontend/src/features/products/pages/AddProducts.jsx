@@ -20,13 +20,13 @@ const AddProducts = () => {
     const formatDate = (date) => {
         if (!date) return "Not provided";
 
-        const parsedDate = new Date(date);
+        const parsed = new Date(date);
 
-        if (Number.isNaN(parsedDate.getTime())) {
+        if (Number.isNaN(parsed.getTime())) {
             return "Not provided";
         }
 
-        return parsedDate.toLocaleDateString("en-IN", {
+        return parsed.toLocaleDateString("en-IN", {
             day: "2-digit",
             month: "short",
             year: "numeric"
@@ -49,6 +49,16 @@ const AddProducts = () => {
 
         return "Something went wrong. Please try again.";
     };
+
+    // Auto scroll to latest content
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end"
+            });
+        });
+    }, [messages, isComplete, isSending, productData]);
 
     // Send message to AI
     const handleSend = async () => {
@@ -84,10 +94,11 @@ const AddProducts = () => {
                     ...prev,
                     {
                         type: "server",
-                        text: getServerMessage(response) ===
+                        text:
+                            getServerMessage(response) ===
                             "Something went wrong. Please try again."
-                            ? "Product information is complete. Please review the details and submit."
-                            : getServerMessage(response)
+                                ? "Product information is complete. Please review the details and submit."
+                                : getServerMessage(response)
                     }
                 ]);
 
@@ -175,10 +186,11 @@ const AddProducts = () => {
                     ...prev,
                     {
                         type: "server",
-                        text: getServerMessage(response) ===
+                        text:
+                            getServerMessage(response) ===
                             "Something went wrong. Please try again."
-                            ? "Product added successfully!"
-                            : getServerMessage(response)
+                                ? "Product added successfully!"
+                                : getServerMessage(response)
                     }
                 ]);
 
@@ -218,27 +230,20 @@ const AddProducts = () => {
         }
     };
 
-    // Auto scroll to latest message
-    useEffect(() => {
-
-        messagesEndRef.current?.scrollIntoView({
-            behavior: "smooth"
-        });
-
-    }, [messages, isComplete]);
-
     const warranty = productData?.warranty?.[0];
 
     return (
-        <main className="h-dvh w-full bg-cyan-900 ">
 
-            <div className="flex h-full w-full flex-col bg-slate-950">
+        <main className="h-dvh w-full overflow-hidden bg-slate-950">
+
+            <div className="flex h-[92vh] w-full flex-col overflow-hidden">
 
                 {/* Chat Area */}
-                <section className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 sm:py-6">
+                <section className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-5 sm:px-6 sm:py-6">
 
                     {/* Initial Message */}
                     {messages.length === 0 && (
+
                         <div className="flex h-full items-center justify-center">
 
                             <div className="max-w-2xl text-center">
@@ -257,10 +262,12 @@ const AddProducts = () => {
                             </div>
 
                         </div>
+
                     )}
 
                     {/* Chat Messages */}
                     {messages.length > 0 && (
+
                         <div className="mx-auto max-w-4xl space-y-4">
 
                             {messages.map((item, index) => (
@@ -275,7 +282,7 @@ const AddProducts = () => {
                                 >
 
                                     <div
-                                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6 sm:max-w-[70%] sm:text-base ${
+                                        className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm leading-6 sm:max-w-[70%] sm:text-base ${
                                             item.type === "user"
                                                 ? "rounded-br-sm bg-cyan-700 text-white"
                                                 : "rounded-bl-sm bg-slate-800 text-slate-200"
@@ -362,10 +369,8 @@ const AddProducts = () => {
 
                             )}
 
-                            {/* Scroll Target */}
-                            <div ref={messagesEndRef} />
-
                         </div>
+
                     )}
 
                     {/* Loading Message */}
@@ -375,10 +380,13 @@ const AddProducts = () => {
                         </div>
                     )}
 
+                    {/* Scroll Target - Always at bottom */}
+                    <div ref={messagesEndRef} />
+
                 </section>
 
-                {/* Input */}
-                <section className="shrink-0 border-t border-slate-800 bg-slate-950 p-3 w-screen  fixed bottom-1 sm:p-4  ">
+                {/* Input Section */}
+                <section className="z-10 shrink-0 relative bottom-0  border-t border-slate-800 bg-slate-950  p-3 sm:p-4">
 
                     <div className="mx-auto flex max-w-4xl items-end gap-2 sm:gap-3">
 
@@ -401,7 +409,7 @@ const AddProducts = () => {
                             type="button"
                             onClick={handleSend}
                             disabled={isSending || isSubmit || !message.trim()}
-                            className="h-11 rounded-xl bg-cyan-950 px-4 text-sm font-semibold text-white transition hover:bg-cyan-200 active:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
+                            className="h-11 rounded-xl bg-cyan-950 px-4 text-sm font-semibold text-white transition hover:bg-cyan-800 active:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
                         >
                             {isSending ? "Sending..." : "Send"}
                         </button>

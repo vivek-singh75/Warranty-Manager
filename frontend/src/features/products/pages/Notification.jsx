@@ -279,7 +279,7 @@ export default function Notifications() {
         </div>
 
         {/* Search and filters */}
-        <div className="mb-6 rounded-2xl border border-blue-900/60 bg-[#0A1530] p-4">
+        {/* <div className="mb-6 rounded-2xl border border-blue-900/60 bg-[#0A1530] p-4">
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
@@ -319,7 +319,7 @@ export default function Notifications() {
             </div>
 
           </div>
-        </div>
+        </div> */}
 
         {/* Notification list */}
         <div className="mb-4 flex items-center justify-between">
@@ -356,7 +356,7 @@ export default function Notifications() {
 
         ) : filteredNotifications.length === 0 ? (
 
-          <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-blue-900/50 bg-[#0A1530] px-5 text-center">
+          <div className="flex min-h-22 flex-col items-center justify-center rounded-2xl border border-blue-900/50 bg-[#0A1530] px-5 text-center">
 
             <div className="mb-4 rounded-full bg-blue-500/10 p-5">
               <ShieldCheck size={42} className="text-cyan-400" />
