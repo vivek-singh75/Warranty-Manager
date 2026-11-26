@@ -1,4 +1,5 @@
 const userModel = require("../Schema/userModel");
+const mongoose = require("mongoose")
 const productModel=  require("../Schema/productModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -175,11 +176,97 @@ async function logoutController(req, res) {
     });
 }
 
+async function deleteAccountController(req , res) {
+    try {
+        const userId = req.user.id;
+        const {password} = req.body;
+
+        if(!userId){
+            return res.status(409).json({
+                success : false,
+                message : "unauthorized access"
+            });
+        }
+
+        if(!password){
+            return res.status(400).json({
+                success : false,
+                message : "Please Enter Password"
+            });
+        }
+
+        const user = await userModel.findById(userId).select("password");
+
+        if(!user){
+            return res.status(503).json({
+                success : false,
+                message : "unauthorized "
+            });
+        }
+
+        const isPassValid =await bcrypt.compare(password , user.password);
+
+        if(!isPassValid){
+            return res.status(400).json({
+                success : false,
+                message : "Please Enter valdi Password"
+            });
+        }
+
+        const session = await mongoose.startSession();
+
+        try {
+            session.startTransaction();
+
+            await productModel.deleteMany(
+                {userId},
+                {session}
+            );
+
+            await userModel.findByIdAndDelete(
+                 userId,
+                {session}
+            );
+
+            await session.commitTransaction();
+
+        } catch (error) {
+            await session.abortTransaction();
+
+            throw error
+        } finally{
+            await session.endSession()
+        }
+
+        res.clearCookie("token" , {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            path: "/"
+        })
+
+        res.status(200).json({
+            success : true ,
+            message : "successfull"
+        })
+        
+
+    } catch (error) {
+        console.error("error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+}
+
 
 
 module.exports = {
     registerUserController,
     loginController,
     getMeController,
-    logoutController
+    logoutController,
+    deleteAccountController
 }

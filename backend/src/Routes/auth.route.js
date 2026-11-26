@@ -15,5 +15,7 @@ authRouter.get("/getMe" ,authMiddlewares.authMiddleware, authControllers.getMeCo
 
 authRouter.post("/logout" , authControllers.logoutController);
 
+authRouter.delete("/deleteAccount" ,authMiddlewares.authMiddleware, authControllers.deleteAccountController);
+
 
 module.exports = authRouter

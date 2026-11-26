@@ -13,6 +13,7 @@ const errorMiddleware = require("./Middleware/error.middleware")
 
 const allowedOrigins = [
     "http://localhost:5173",
+    "http://localhost:5174",
     "https://vivek-singh75.github.io"
 ];
 

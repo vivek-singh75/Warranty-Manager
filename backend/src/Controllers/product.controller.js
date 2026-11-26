@@ -5,7 +5,9 @@ const userModel = require("../Schema/userModel");
 
 const {
     getChatHistory,
-    clearChatSession } = require("../Services/chatHistory");
+    clearChatSession 
+} = require("../Services/chatHistory");
+
 
 
 async function addProduct(req, res) {
@@ -174,11 +176,14 @@ async function addProduct(req, res) {
 }
 
 
+
 async function submitProducts(req ,res) {
     try {
         const Details = req.body;
 
         const userId = req.user.id;
+        const sessionId = req.headers["x-chat-session-id"];
+
 
 
         if(!userId){
@@ -187,6 +192,15 @@ async function submitProducts(req ,res) {
                 message : "userId not found "
             })
         }
+
+        if (!sessionId || typeof sessionId !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Chat session ID is required"
+            });
+        }
+
+
 
         if(!Details){
             return res.status(404).json({
